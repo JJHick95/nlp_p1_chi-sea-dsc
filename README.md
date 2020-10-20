@@ -35,7 +35,8 @@ We will also introduce you to [**NLTK**](https://www.nltk.org/) (Natural Languag
 
 We will be working with a dataset which includes both **satirical** (The Onion) and real news (Reuters) articles. 
 
-We refer to the entire set of articles as the **corpus**.  
+### Vocab
+> We refer to the entire set of articles as the **corpus**.  
 
 
 ```python
@@ -45,11 +46,14 @@ corpus = pd.read_csv('data/satire_nosatire.csv')
 
 ```
 
-Our goal is to detect satire, so our target class of 1 is associated with The Onion articles.  
+Our goal is to detect satire, so our target class of 1 is associated with The Onion articles. 
 
 ![the_onion](img/the_onion.jpeg) ![reuters](img/reuters.png)
 
-Each article in the corpus is refered to as a **document**.
+This is a highly relavent task.  If we could separate real news from fictitious news, we would be able to potentially flag the latter as such.  This does come with risks.  If we deploy a model which mislabel real news as ficticious news, we will open ourselves to all sorts of criticism.  A false positive in this sense to bury a story or do damage to a reporter's reputation. 
+
+#### More Vocab
+> Each article in the corpus is refered to as a **document**.
 
 
 ```python
@@ -89,7 +93,7 @@ corpus[corpus.target==0].sample().body.values
 
 
 
-    array([' A powerful Iranian council approved an anti-money laundering bill on Saturday, state media reported, a major step towards reforms that would bring Iran into line with global norms and could facilitate foreign trade in the face of U.S sanctions. Iran has been trying to implement standards set by the Financial Action Task Force (FATF), an inter-governmental organisation that underpins the fight against money laundering and terrorist financing. Foreign businesses say Iran’s compliance with FATF standards and its removal from the organisation’s blacklist are essential if they are to increase investment, especially after reimposition of the U.S. sanctions on Tehran. However, Iranian hardliners have opposed passing legislation toward compliance with the FATF, arguing it could hamper Iranian financial support for allies such as Lebanon’s Hezbollah, which the United States lists as a terrorist organisation. Parliament last year passed the anti-money laundering bill, one of four amendments Iran needs to implement to meet FATF requirements, but the Guardian Council, a vetting body, rejected it, saying it was against Islam and the constitution. On Saturday, the Expediency Council, a body intended to resolve disputes between parliament and the Guardian Council, approved the bill with some changes, state news agency IRNA said, quoting a member of the council. The move came after Ayatollah Sadeq Amoli Larijani - the chief of hardline judiciary - was appointed last week as the head of the Expediency Council. He is the brother of Ali Larijani, the speaker of the parliament. Seven months after his harsh dismissal of parliamentary efforts to adapt FATF and other international conventions on money laundering, Supreme Leader Ayatollah Ali Khamenei seems to have warmed to the reforms, a reversal that experts say is aimed at preventing Iran’s economic collapse. In recent months, cities have been rocked by demonstrations as factory workers, teachers, truck drivers and farmers protested against economic hardship. The sanctions have depressed the value of Iran’s rial currency and aggravated annual inflation fourfold to nearly 40 percent in November. U.S. President Donald Trump withdrew from a nuclear deal with Iran last year and reimposed the sanctions on its banking and energy sectors, hoping to curb its missile and nuclear programmes and counter its growing influence in the Middle East. European signatories of the nuclear deal are still committed to the accord and seek to launch a mechanism, a so-called special purpose vehicle (SPV), aiming to sidestep the U.S. financial system by using an EU intermediary to handle trade with Iran. The director general of Iran’s Strategic Council on Foreign Relations, an advisory body set up by Khamenei, voiced his support for the FATF-related bills on Friday. “It is better to finalise the FATF and CFT (counter financing of terrorism regimes) in the earliest time, so the Europeans have no excuse not to implement the (SPV) mechanism,” Abdolreza Faraji was quoted by semi-official ISNA new agency.'],
+    array([' Poland will close ‘escape rooms’ that do not meet safety standards, Prime Minister Mateusz Morawiecki said on Sunday after a fire killed five teenage girls. The girls were celebrating a birthday at an escape room in the northern town of Koszalin when the fire broke out. The venue’s owner was arrested on Sunday, Polish media reported. Authorities carried out inspections of at least 178 escape room locations across Poland at the weekend and found 129 did not meet health and safety standards, said the head of state fire services Leszek Suski. Thirteen locations were ordered closed. In escape rooms, participants are locked in and race against the clock to solve puzzles and challenges to open a way out. “This was unprecedented ... any sort of prevention is important,” Morawiecki told reporters. Interior Minister Joachim Brudzinski urged parents to report potential safety violations at escape rooms or other children’s entertainment centres. “Sanctions need to be harsh,” Brudzinski said. Morawiecki said he had ordered a report on the around 1,100 escape rooms or similar locations across Poland and the government would determine if changes to safety regulations were needed.'],
           dtype=object)
 
 
@@ -105,36 +109,14 @@ y = corpus.target
 
 
 ```python
-from sklearn.model_selection import train_test_split
-
-X_train, X_test, y_train, y_test = train_test_split(X,y, random_state=42, test_size=.2)
-X_train
-```
-
-
-
-
-    29     “Did you see those golden globes?” an excited ...
-    535     The most senior bankers to face criminal char...
-    695     Five Louisiana children travelling to Disney ...
-    557     A U.S. guided-missile destroyer sailed near d...
-    836     U.S. commanders planning for the withdrawal o...
-                                 ...                        
-    106    The visiting contingent of communist Chinese c...
-    270    Manufacturers of the newly unveiled robot call...
-    860     Britain’s Royal Mail apologised on Friday aft...
-    435    Kim Jong-Un set up an amazing fireworks show f...
-    102    Thanks to the constant lies and closed curtain...
-    Name: body, Length: 800, dtype: object
-
-
-
-
-```python
 from sklearn.feature_extraction.text import TfidfVectorizer
+from nltk.corpus import stopwords
 
 # A new preprocessing tool!
-tfidf = TfidfVectorizer(token_pattern=r"([a-zA-Z]+(?:'[a-z]+)?)")
+
+# This tool removes case punctuation, numbers, and stopwords in one fell swoop.
+# We will break this down below
+tfidf = TfidfVectorizer(token_pattern=r"([a-zA-Z]+(?:'[a-z]+)?)", stop_words=stopwords.words('english'))
 
 # Like always, we are fitting only on the training set
 X_t_vec = tfidf.fit_transform(X_t)
@@ -164,7 +146,6 @@ X_t_vec.head()
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>a</th>
       <th>aaaaaaah</th>
       <th>aaaaaah</th>
       <th>aaaaargh</th>
@@ -174,6 +155,7 @@ X_t_vec.head()
       <th>aap</th>
       <th>aapl</th>
       <th>aaron</th>
+      <th>ab</th>
       <th>...</th>
       <th>zooming</th>
       <th>zoos</th>
@@ -190,7 +172,7 @@ X_t_vec.head()
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.118115</td>
+      <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -214,7 +196,7 @@ X_t_vec.head()
     </tr>
     <tr>
       <th>1</th>
-      <td>0.062207</td>
+      <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -238,7 +220,7 @@ X_t_vec.head()
     </tr>
     <tr>
       <th>2</th>
-      <td>0.081322</td>
+      <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -262,7 +244,7 @@ X_t_vec.head()
     </tr>
     <tr>
       <th>3</th>
-      <td>0.190319</td>
+      <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -286,7 +268,7 @@ X_t_vec.head()
     </tr>
     <tr>
       <th>4</th>
-      <td>0.104993</td>
+      <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -310,7 +292,7 @@ X_t_vec.head()
     </tr>
   </tbody>
 </table>
-<p>5 rows × 19118 columns</p>
+<p>5 rows × 18970 columns</p>
 </div>
 
 
@@ -331,7 +313,7 @@ log_r.score(X_t_vec, y_t)
 
 
 
-    1.0
+    0.996875
 
 
 
@@ -356,19 +338,24 @@ from sklearn.metrics import plot_confusion_matrix
 plot_confusion_matrix(log_r, X_val_vec, y_val)
 ```
 
-    0.96875
+    0.9875
 
 
 
 
 
-    <sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay at 0x1a456f06a0>
+    <sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay at 0x1169695f8>
 
 
 
 
-![png](index_files/index_19_2.png)
+![png](index_files/index_20_2.png)
 
+
+#### How did your model do?  
+
+Probably well.  
+It's pretty amazing the patterns, even a relatively low power one such as logistic regression, can find in text data.
 
 
 ```python
@@ -478,12 +465,12 @@ plot_confusion_matrix(pipeline, X_test, y_test)
 
 
 
-    <sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay at 0x1a44a16b70>
+    <sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay at 0x1a21e54d68>
 
 
 
 
-![png](index_files/index_24_1.png)
+![png](index_files/index_26_1.png)
 
 
 # 3 Preprocessing
@@ -501,6 +488,11 @@ Tokenization is the process of splitting documents into units of observations. W
 
 Let's consider the first document in our corpus:
 
+
+```python
+first_document = corpus.iloc[0].body
+```
+
 There are many ways to tokenize our document. 
 
 It is a long string, so the first way we might consider is to split it by spaces.
@@ -509,6 +501,42 @@ It is a long string, so the first way we might consider is to split it by spaces
 ```python
 first_document.split()[:30]
 ```
+
+
+
+
+    ['Noting',
+     'that',
+     'the',
+     'resignation',
+     'of',
+     'James',
+     'Mattis',
+     'as',
+     'Secretary',
+     'of',
+     'Defense',
+     'marked',
+     'the',
+     'ouster',
+     'of',
+     'the',
+     'third',
+     'top',
+     'administration',
+     'official',
+     'in',
+     'less',
+     'than',
+     'three',
+     'weeks,',
+     'a',
+     'worried',
+     'populace',
+     'told',
+     'reporters']
+
+
 
 #### Chat out some problems (don't look down)
 
@@ -593,11 +621,25 @@ manual_cleanup[:25]
 
 
 
+By removing capitals, we decrease the total unique word count in our first document by 2.  That may not seem like much, but across an entire corpus, it will make a big difference.
+
 ## Punctuation
 
 Like capitals, splitting on white space will create tokens which include punctuation that will muck up our semantics.  
 
 Returning to the above example, 'gerrymandering' and 'gerrymandering.' will be treated as different tokens.
+
+
+```python
+sentence_one.split()[1] == sentence_two.split()[-1]
+```
+
+
+
+
+    False
+
+
 
 # Different ways to strip punctuation
 
@@ -782,10 +824,30 @@ A few key symbols:
   - [A-Z]: matches any capital letter  
   - [a-z]: matches lowercase letter  
 
+Other helpful resources:
+
+https://regexcrossword.com/  
+https://www.regular-expressions.info/tutorial.html
+
 
 ```python
 pattern = r"[a-zA-Z]+"
 
+target_word = manual_cleanup[10]
+re.search(pattern, target_word).group(0)
+
+
+```
+
+
+
+
+    'defense'
+
+
+
+
+```python
 manual_cleanup = [re.search(pattern, word).group(0) for word in manual_cleanup if re.search(pattern, word)]
 ```
 
@@ -796,65 +858,102 @@ manual_cleanup = [re.search(pattern, word).group(0) for word in manual_cleanup i
 import re
 
 pattern = "([a-zA-Z]+(?:'[a-z]+)?)"
-[re.match(regex_pattern, word).group(0) for word in manual_cleanup]
+[re.match(pattern, word).group(0) for word in manual_cleanup]
 ```
 
 
 
 
     ['noting',
+     'that',
+     'the',
      'resignation',
+     'of',
      'james',
      'mattis',
+     'as',
      'secretary',
+     'of',
      'defense',
      'marked',
+     'the',
      'ouster',
+     'of',
+     'the',
      'third',
      'top',
      'administration',
      'official',
+     'in',
      'less',
+     'than',
      'three',
      'weeks',
+     'a',
      'worried',
      'populace',
      'told',
      'reporters',
      'friday',
+     'that',
+     'it',
+     'was',
      'unsure',
+     'how',
      'many',
      'former',
      'trump',
      'staffers',
+     'it',
      'could',
      'safely',
      'reabsorb',
      'jesus',
+     'we',
+     'can',
+     'just',
      'take',
      'back',
+     'these',
      'assholes',
+     'all',
+     'at',
+     'once',
      'need',
      'time',
+     'to',
      'process',
      'one',
+     'before',
+     'we',
      'get',
+     'the',
      'next',
      'said',
-     'yearold',
+     'year',
      'gregory',
      'birch',
+     'of',
      'naperville',
      'il',
      'echoing',
+     'the',
      'concerns',
+     'of',
      'million',
      'americans',
+     'in',
      'also',
      'noting',
+     'that',
+     'the',
      'country',
+     'was',
+     'only',
+     'now',
      'truly',
      'beginning',
+     'to',
      'reintegrate',
      'former',
      'national',
@@ -862,30 +961,62 @@ pattern = "([a-zA-Z]+(?:'[a-z]+)?)"
      'advisor',
      'michael',
      'flynn',
+     'this',
+     'is',
+     'just',
+     'not',
      'sustainable',
+     'i',
+     'say',
+     'we',
+     'can',
      'handle',
      'maybe',
      'one',
+     'or',
      'two',
+     'more',
      'former',
      'members',
+     'of',
      'trump',
      'inner',
      'circle',
+     'over',
+     'the',
      'remainder',
+     'of',
+     'the',
      'year',
+     'but',
+     'that',
+     'it',
+     'this',
      'country',
+     'has',
+     'its',
      'limits',
-     'us',
+     'the',
+     'u',
      'populace',
      'confirmed',
+     'that',
+     'they',
      'could',
+     'not',
      'handle',
+     'all',
+     'of',
+     'these',
      'pieces',
+     'of',
      'shit',
      'trying',
+     'to',
      'rejoin',
-     'society']
+     'society',
+     'at',
+     'once']
 
 
 
@@ -895,9 +1026,55 @@ Stopwords are the **filler** words in a language: prepositions, articles, conjun
 
 Luckily, NLTK has lists of stopwords ready for our use.
 
+As you notice above, stopwords come from the [nltk corpus package](http://www.nltk.org/book_1ed/ch02.html#tab-corpora).  The corpus package contains a variety of texts that are free to download and use.
+
 Let's see which stopwords are present in our first document.
 
 Let's also use the **FreqDist** tool to look at the makeup of our text before and after removal
+
+
+```python
+fdist = FreqDist(manual_cleanup)
+plt.figure(figsize=(10,10))
+fdist.plot(30)
+
+```
+
+
+![png](index_files/index_60_0.png)
+
+
+
+
+
+    <matplotlib.axes._subplots.AxesSubplot at 0x1a28059630>
+
+
+
+
+```python
+# We can also customize our stopwords list
+
+custom_sw = stopwords.words('english')
+custom_sw.extend(["i'd","say"] )
+custom_sw[-10:]
+```
+
+
+
+
+    ['wasn',
+     "wasn't",
+     'weren',
+     "weren't",
+     'won',
+     "won't",
+     'wouldn',
+     "wouldn't",
+     "i'd",
+     'say']
+
+
 
 
 ```python
@@ -909,14 +1086,24 @@ plt.figure(figsize=(10,10))
 fdist.plot(30)
 ```
 
+
+![png](index_files/index_62_0.png)
+
+
+
+
+
+    <matplotlib.axes._subplots.AxesSubplot at 0x1a2830a898>
+
+
+
 #### Numbers
 
 Numbers also usually have low semantic value. Their removal can help improve our models. 
 
 To remove them, we will use regular expressions, a powerful tool which you may already have some familiarity with.
 
-Regex allows us to match strings based on a pattern.  This pattern comes from a language of identifiers, which we can begin exploring on the cheatsheet found here:
-  -   https://regexr.com/
+Bringing back our regex symbols, we can quickly figure out patterns which will filter out numeric values.
 
 A few key symbols:
   - . : matches any character
@@ -925,30 +1112,48 @@ A few key symbols:
   - [A-Z]: matches any capital letter  
   - [a-z]: matches lowercase letter  
 
-Other helpful resources:
-  - https://regexcrossword.com/
-  - https://www.regular-expressions.info/tutorial.html
 
-We can use regex to isolate numbers
+```python
+no_num_pattern = r'[a-zA-Z]*'
+test_string = "Reno 911"
+
+re.search(no_num_pattern, test_string).group()
+```
 
 
 
-# Individual Code Exercise:  
-Individually, test out different regex patterns to isolate numerical values in the first document.
 
+    'Reno'
+
+
+
+# Pair Exercise:  
+Sklearn and NLTK provide us with a suite of **tokenizers** for our text preprocessing convenience.
+
+
+We can use them to condense the steps above.  As we will see, even more steps will be condensed in the vectorizors introduced at the end of the notebook.  
+
+For now, we will still need to make our list lowercase and remove stopwords by hand. 
+
+It is important to get used to the process of tokenizing by hand, since it will give us more freedom in certain preprocessing steps (see stemmers/lemmers below).
+
+For this exercise, take the sample_doc below and use the tokenizer of your choice to create word tokens.  If you use the regexp vectorizor, I have included a regex pattern that does not exclude contractions.  Feel free to pass that in as an argument.
+
+After tokenizing, make tokens lowercase, and remove stopwords.
 
 
 ```python
-import re
 
-# 1 or more digits
-pattern = '\d+'
+pattern = "([a-zA-Z]+(?:'[a-z]+)?)"
 
-number = re.findall( pattern, first_document)
-number
+tokenizer = RegexpTokenizer(r"([a-zA-Z]+(?:[’'][a-z]+)?)")
+
+sample_doc = X_t.sample(random_state=42).values[0]
+sample_doc = tokenizer.tokenize(sample_doc)
+
+sample_doc = [token.lower() for token in sample_doc]
+sample_doc = [token for token in sample_doc if token not in custom_sw]
 ```
-
-Sklearn and NLTK provide us with a suite of **tokenizers** for our text preprocessing convenience.
 
 # Stemming
 
@@ -959,6 +1164,30 @@ Stemmers consolidate similar words by chopping off the ends of the words.
 ![stemmer](img/stemmer.png)
 
 There are different stemmers available.  The two we will use here are the **Porter** and **Snowball** stemmers.  A main difference between the two is how agressively it stems, Porter being less agressive.
+
+
+```python
+p_stemmer = PorterStemmer()
+s_stemmer = SnowballStemmer(language="english")
+```
+
+
+```python
+p_stemmer.stem(sample_doc[0])
+s_stemmer.stem(sample_doc[1])
+```
+
+
+
+
+    'confirm'
+
+
+
+
+```python
+sample_doc = [s_stemmer.stem(word) for word in sample_doc]
+```
 
 # Lemming
 
@@ -974,11 +1203,273 @@ Lemmatization returns real words. For example, instead of returning "movi" like 
 ![lemmer](img/lemmer.png)
 
 
+
+```python
+lemmatizer = WordNetLemmatizer() 
+```
+
+
+```python
+print(f'Mice becomes: {lemmatizer.lemmatize("mice")}')
+```
+
+    Mice becomes: mouse
+
+
 Lemmatizers depend on POS tagging, and defaults to noun.
 
 With a little bit of work, we can POS tag our text.
 
-## Part 3. Feature Engineering for NLP 
+
+```python
+new_sample_tagged = pos_tag(new_sample)
+new_sample_tagged
+```
+
+
+
+
+    [('Britain', 'NNP'),
+     ('recalling', 'VBG'),
+     ('two', 'CD'),
+     ('patrol', 'NN'),
+     ('boats', 'NNS'),
+     ('overseas', 'JJ'),
+     ('deployments', 'NNS'),
+     ('help', 'VB'),
+     ('deal', 'VB'),
+     ('increase', 'VB'),
+     ('number', 'NN'),
+     ('migrants', 'NNS'),
+     ('trying', 'VBG'),
+     ('reach', 'JJ'),
+     ('country', 'NN'),
+     ('France', 'NNP'),
+     ('interior', 'JJ'),
+     ('minister', 'NN'),
+     ('Sajid', 'NNP'),
+     ('Javid', 'NNP'),
+     ('said', 'VBD'),
+     ('Monday', 'NNP'),
+     ('Javid', 'NNP'),
+     ('said', 'VBD'),
+     ('increase', 'NN'),
+     ('number', 'NN'),
+     ('migrants', 'NNS'),
+     ('crossing', 'VBG'),
+     ('English', 'JJ'),
+     ('Channel', 'NNP'),
+     ('France', 'NNP'),
+     ('last', 'JJ'),
+     ('week', 'NN'),
+     ('declared', 'VBD'),
+     ('situation', 'NN'),
+     ('major', 'JJ'),
+     ('incident', 'NN'),
+     ('On', 'IN'),
+     ('Monday', 'NNP'),
+     ('following', 'VBG'),
+     ('meeting', 'NN'),
+     ('officials', 'NNS'),
+     ('London', 'NNP'),
+     ('said', 'VBD'),
+     ('two', 'CD'),
+     ('additional', 'JJ'),
+     ('ships', 'NNS'),
+     ('would', 'MD'),
+     ('join', 'VB'),
+     ('three', 'CD'),
+     ('vessels', 'NNS'),
+     ('already', 'RB'),
+     ('working', 'VBG'),
+     ('channel', 'NN'),
+     ('He', 'PRP'),
+     ('said', 'VBD'),
+     ('migrants', 'NNS'),
+     ('attempted', 'VBN'),
+     ('cross', 'NN'),
+     ('world’s', 'NN'),
+     ('busiest', 'JJS'),
+     ('shipping', 'NN'),
+     ('lanes', 'NNS'),
+     ('December', 'NNP'),
+     ('although', 'IN'),
+     ('almost', 'RB'),
+     ('half', 'NN'),
+     ('prevented', 'JJ'),
+     ('leaving', 'VBG'),
+     ('France', 'NNP'),
+     ('The', 'DT'),
+     ('number', 'NN'),
+     ('tiny', 'JJ'),
+     ('fraction', 'NN'),
+     ('regularly', 'RB'),
+     ('attempting', 'VBG'),
+     ('reach', 'NN'),
+     ('European', 'NNP'),
+     ('Union', 'NNP'),
+     ('territory', 'NN'),
+     ('crossing', 'VBG'),
+     ('Mediterranean', 'NNP'),
+     ('northern', 'JJ'),
+     ('Africa', 'NNP'),
+     ('Turkey', 'NNP'),
+     ('many', 'JJ'),
+     ('fleeing', 'VBG'),
+     ('conflict', 'NN'),
+     ('poverty', 'NN'),
+     ('Middle', 'NNP'),
+     ('East', 'NNP'),
+     ('Africa', 'NNP'),
+     ('But', 'CC'),
+     ('attempts', 'NNS'),
+     ('cross', 'VBP'),
+     ('Britain', 'NNP'),
+     ('attracted', 'VBD'),
+     ('extensive', 'JJ'),
+     ('domestic', 'JJ'),
+     ('scrutiny', 'NN'),
+     ('amid', 'IN'),
+     ('febrile', 'JJ'),
+     ('political', 'JJ'),
+     ('atmosphere', 'NN'),
+     ('less', 'JJR'),
+     ('three', 'CD'),
+     ('months', 'NNS'),
+     ('Britain', 'NNP'),
+     ('leaves', 'VBZ'),
+     ('European', 'NNP'),
+     ('Union', 'NNP'),
+     ('referendum', 'POS'),
+     ('immigration', 'NN'),
+     ('major', 'JJ'),
+     ('theme', 'NN'),
+     ('This', 'DT'),
+     ('help', 'NN'),
+     ('human', 'JJ'),
+     ('side', 'NN'),
+     ('situation', 'NN'),
+     ('also', 'RB'),
+     ('better', 'RBR'),
+     ('protect', 'JJ'),
+     ('borders', 'NNS'),
+     ('Javid', 'NNP'),
+     ('said', 'VBD'),
+     ('deployment', 'NN'),
+     ('The', 'DT'),
+     ('last', 'JJ'),
+     ('three', 'CD'),
+     ('months', 'NNS'),
+     ('accounted', 'VBN'),
+     ('around', 'IN'),
+     ('percent', 'NN'),
+     ('attempts', 'NNS'),
+     ('Javid', 'NNP'),
+     ('said', 'VBD'),
+     ('adding', 'VBG'),
+     ('crossings', 'NNS'),
+     ('compared', 'VBN'),
+     ('The', 'DT'),
+     ('interior', 'JJ'),
+     ('ministry', 'NN'),
+     ('said', 'VBD'),
+     ('majority', 'NN'),
+     ('arrived', 'VBD'),
+     ('Britain', 'NNP'),
+     ('recent', 'JJ'),
+     ('period', 'NN'),
+     ('Iranian', 'NNP'),
+     ('said', 'VBD'),
+     ('routinely', 'RB'),
+     ('publish', 'JJ'),
+     ('data', 'NNS'),
+     ('would', 'MD'),
+     ('providing', 'VBG'),
+     ('running', 'VBG'),
+     ('tally', 'RB'),
+     ('exact', 'JJ'),
+     ('comparisons', 'NNS'),
+     ('previous', 'JJ'),
+     ('years', 'NNS'),
+     ('Local', 'JJ'),
+     ('media', 'NNS'),
+     ('reported', 'VBN'),
+     ('people', 'NNS'),
+     ('arrived', 'VBD'),
+     ('beach', 'NN'),
+     ('southeast', 'NN'),
+     ('England', 'NNP'),
+     ('small', 'JJ'),
+     ('boat', 'NN'),
+     ('Monday', 'NNP'),
+     ('Javid', 'NNP'),
+     ('cut', 'VBD'),
+     ('short', 'JJ'),
+     ('holiday', 'NN'),
+     ('oversee', 'IN'),
+     ('response', 'NN'),
+     ('situation', 'NN'),
+     ('seen', 'VBN'),
+     ('jostling', 'VBG'),
+     ('replace', 'VB'),
+     ('Prime', 'NNP'),
+     ('Minister', 'NNP'),
+     ('Theresa', 'NNP'),
+     ('May', 'NNP'),
+     ('said', 'VBD'),
+     ('earlier', 'JJR'),
+     ('month', 'NN'),
+     ('would', 'MD'),
+     ('step', 'VB'),
+     ('next', 'RB'),
+     ('scheduled', 'VBN'),
+     ('nation', 'NN'),
+     ('election', 'NN'),
+     ('Concern', 'NNP'),
+     ('legal', 'JJ'),
+     ('migration', 'NN'),
+     ('illegal', 'JJ'),
+     ('immigration', 'NN'),
+     ('seen', 'VBN'),
+     ('important', 'JJ'),
+     ('driver', 'NN'),
+     ('vote', 'NN'),
+     ('leave', 'VBP'),
+     ('European', 'NNP'),
+     ('Union', 'NNP'),
+     ('I', 'PRP'),
+     ('don’t', 'VBP'),
+     ('want', 'JJ'),
+     ('people', 'NNS'),
+     ('think', 'VBP'),
+     ('leave', 'VBP'),
+     ('safe', 'JJ'),
+     ('country', 'NN'),
+     ('like', 'IN'),
+     ('France', 'NNP'),
+     ('get', 'VBP'),
+     ('Britain', 'NNP'),
+     ('get', 'VB'),
+     ('stay', 'JJ'),
+     ('Javid', 'NNP'),
+     ('said', 'VBD'),
+     ('outlining', 'VBG'),
+     ('desire', 'NN'),
+     ('work', 'NN'),
+     ('France', 'NNP'),
+     ('return', 'VBD'),
+     ('many', 'JJ'),
+     ('migrants', 'NNS'),
+     ('possible', 'JJ')]
+
+
+
+
+```python
+new_sample_lemmed = [lemmatizer.lemmatize(token[0], token[1]) for token in new_sample_tagged]
+```
+
+## 4. Feature Engineering for NLP 
 The machine learning algorithms we have encountered so far represent features as the variables that take on different value for each observation. For example, we represent individual with distinct education level, income, and such. However, in NLP, features are represented in very different way. In order to pass text data to machine learning algorithm and perform classification, we need to represent the features in a sensible way. One such method is called **Bag-of-words (BoW)**. 
 
 A bag-of-words model, or BoW for short, is a way of extracting features from text for use in modeling. A bag-of-words is a representation of text that describes the occurrence of words within a document. It involves two things:
@@ -998,9 +1489,133 @@ Can be represented as:
 
 ![document term matrix](img/document_term_matrix.png)
 
+
+```python
+vec = CountVectorizer()
+X = vec.fit_transform([" ".join(new_sample_lemmed)])
+
+
+df = pd.DataFrame(X.toarray(), columns = vec.get_feature_names())
+df.head()
+```
+
 That is not very exciting for one document. The idea is to make a document term matrix for all of the words in our corpus.
 
+We can pass in arguments such as a regex pattern, a list of stopwords, and an ngram range to do our preprocessing in one fell swoop.   
+*Note lowercase defaults to true.*
+
+
+```python
+vec = CountVectorizer(token_pattern=r"([a-zA-Z]+(?:'[a-z]+)?)", stop_words=custom_sw, ngram_range=[1,2])
+X = vec.fit_transform(corpus.body[0:2])
+
+df = pd.DataFrame(X.toarray(), columns = vec.get_feature_names())
+df.head()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>adding</th>
+      <th>adding wants</th>
+      <th>administration</th>
+      <th>administration official</th>
+      <th>advisor</th>
+      <th>advisor michael</th>
+      <th>also</th>
+      <th>also noting</th>
+      <th>americans</th>
+      <th>americans also</th>
+      <th>...</th>
+      <th>witnesses want</th>
+      <th>work</th>
+      <th>work investigating</th>
+      <th>worried</th>
+      <th>worried populace</th>
+      <th>year</th>
+      <th>year country</th>
+      <th>year old</th>
+      <th>yet</th>
+      <th>yet another</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>2</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>2 rows × 371 columns</p>
+</div>
+
+
+
 Our document term matrix gets bigger and bigger, with more and more zeros, becoming sparser and sparser.
+
+> In case you forgot, a sparse matrix "is a matrix in which most of the elements are zero." [wikipedia](https://en.wikipedia.org/wiki/Sparse_matrix)
 
 We can set upper and lower limits to the word frequency.
 
@@ -1018,6 +1633,187 @@ IDF represents the measure of how much information the word provides, i.e., if i
 $$idf(w) = log (\frac{number\ of\ documents}{num\ of\ documents\ containing\ w})$$
 
 tf-idf is the product of term frequency and inverse document frequency, or tf * idf. 
+
+
+```python
+tf_vec = TfidfVectorizer(token_pattern=r"([a-zA-Z]+(?:'[a-z]+)?)", stop_words=custom_sw)
+X = tf_vec.fit_transform(corpus.body)
+
+df = pd.DataFrame(X.toarray(), columns = tf_vec.get_feature_names())
+df.head()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>aa</th>
+      <th>aaaaaaah</th>
+      <th>aaaaaah</th>
+      <th>aaaaargh</th>
+      <th>aaaah</th>
+      <th>aaah</th>
+      <th>aaargh</th>
+      <th>aah</th>
+      <th>aahing</th>
+      <th>aap</th>
+      <th>...</th>
+      <th>zoos</th>
+      <th>zor</th>
+      <th>zozovitch</th>
+      <th>zte</th>
+      <th>zuckerberg</th>
+      <th>zuercher</th>
+      <th>zverev</th>
+      <th>zych</th>
+      <th>zzouss</th>
+      <th>zzzzzst</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 23455 columns</p>
+</div>
+
+
 
 Let's compare the tfidf to the count vectorizer output for one document.
 
@@ -1076,3 +1872,175 @@ df = pd.DataFrame(X.toarray())
 df.columns = tf_idf.vocabulary_
 df.head()
 ```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>secretary</th>
+      <th>mark</th>
+      <th>third</th>
+      <th>top</th>
+      <th>administration</th>
+      <th>official</th>
+      <th>less</th>
+      <th>three</th>
+      <th>week</th>
+      <th>tell</th>
+      <th>...</th>
+      <th>reserve</th>
+      <th>economy</th>
+      <th>october</th>
+      <th>militant</th>
+      <th>reporting</th>
+      <th>seven</th>
+      <th>syria</th>
+      <th>dec</th>
+      <th>minimum</th>
+      <th>lawmaker</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.00000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.162442</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>0.00000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.078375</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.106884</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>0.00000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>0.13159</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.208572</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.077942</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.061257</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.128578</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>0.00000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.149827</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 658 columns</p>
+</div>
+
+
