@@ -1,6 +1,7 @@
 
 # Agenda today:
 1. Overview of NLP
+2. Model Building Remains Consistent
 2. Pre-Processing for NLP 
     - Tokenization
     - Stopwords removal
@@ -17,18 +18,19 @@
 %load_ext autoreload
 %autoreload 2
 
-import os
-import sys
-module_path = os.path.abspath(os.path.join(os.pardir, os.pardir))
-if module_path not in sys.path:
-    sys.path.append(module_path)
-
-mccalister = ['Adam', 'Amanda','Chum', 'Dann',
- 'Jacob', 'Jason', 'Johnhoy', 'Karim',
-'Leana','Luluva', 'Matt', 'Maximilian','Syd' ]
+# This is always a good idea
+%load_ext autoreload
+%autoreload 2
 
 from src.student_caller import one_random_student
+from src.student_list import student_first_names
 ```
+
+    The autoreload extension is already loaded. To reload it, use:
+      %reload_ext autoreload
+    The autoreload extension is already loaded. To reload it, use:
+      %reload_ext autoreload
+
 
 ## 1. Overview of NLP
 NLP allows computers to interact with text data in a structured and sensible way. In short, we will be breaking up series of texts into individual words (or groups of words), and isolating the words with **semantic value**.  We will then compare texts with similar distributions of these words, and group them together.
@@ -49,7 +51,7 @@ We will also introduce you to [**NLTK**](https://www.nltk.org/) (Natural Languag
 # NLP process 
 <img src="img/nlp_process.png" style="width:1000px;">
 
-# 2. Preprocessing for NLP
+# 2. Model Building Principles Remain Consistent
 
 
 ```python
@@ -63,47 +65,137 @@ We refer to the entire set of articles as the **corpus**.
 
 
 ```python
+# Let's import our corpus. 
 import pandas as pd
 
-corpus = pd.read_csv('data/satire_nosatire.csv')
-corpus.shape
-```
-
-
-```python
-corpus.head()
 ```
 
 Our goal is to detect satire, so our target class of 1 is associated with The Onion articles.  
 
 ![the_onion](img/the_onion.jpeg) ![reuters](img/reuters.png)
 
-
-```python
-corpus.loc[10].body
-```
-
-
-```python
-corpus.loc[502].body
-```
-
 Each article in the corpus is refered to as a **document**.
 
-It is a balanced dataset with 500 documents of each category. 
+
+```python
+# How many documents are there in the corpus?
+```
 
 
 ```python
-corpus.target.value_counts()
+# What is the class balance?
+```
+
+
+```python
+# Let's look at some example texts from both categories
+
+# Category 1
+
+```
+
+
+```python
+# Category 0
 ```
 
 Let's think about our types of error and the use cases of being able to correctly separate satirical from authentic news. What type of error should we decide to optimize our models for?  
 
 
 ```python
-one_random_student(mccalister)
+# Help me fill in the blanks:
+
+# Pass in the body of the documents as raw text
+X = None
+y = None
+```
+
+
+```python
+X_train, X_test, y_train, y_test = None, None, None, None
+```
+
+
+```python
+# For demonstration purposes, we will perform a secondary train test split. In practice, we will apply a pipeline.
+
+X_t, X_val, y_t, y_val = train_test_split(X_train, y_train, random_state=42, test_size=.2)
 
 ```
+
+
+```python
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# A new preprocessing tool!
+tfidf = TfidfVectorizer(token_pattern=r"([a-zA-Z]+(?:'[a-z]+)?)")
+
+# Like always, we are fitting only on the training set
+X_t_vec = None
+# Here is our new dataframe of predictors
+X_t_vec = pd.DataFrame(X_t_vec.toarray(), columns = tfidf.get_feature_names())
+
+X_train_vec.head()
+```
+
+
+    ---------------------------------------------------------------------------
+
+    AttributeError                            Traceback (most recent call last)
+
+    <ipython-input-196-011e465d70fb> in <module>
+          7 X_t_vec = None
+          8 # Here is our new dataframe of predictors
+    ----> 9 X_t_vec = pd.DataFrame(X_t_vec.toarray(), columns = tfidf.get_feature_names())
+         10 
+         11 X_train_vec.head()
+
+
+    AttributeError: 'NoneType' object has no attribute 'toarray'
+
+
+
+```python
+# That's a lot of columns
+X_t_vec.shape
+```
+
+
+
+
+    (640, 19118)
+
+
+
+### We can push this data into any of our classification models
+
+
+
+```python
+# Code here
+```
+
+# We proceed as usual:
+    - Transform the validation set
+    - Score the validation set
+    - Plot a confusion matrix to check out the performance on different types of errors
+ 
+
+
+```python
+# your code here
+
+# Transform X_val
+X_val_vec = None
+
+# Score val
+y_hat = None
+
+# Plot confusion matrix
+
+```
+
+# 3 Preprocessing
 
 ### Tokenization 
 
@@ -126,12 +218,6 @@ first_document = corpus.iloc[0].body
 There are many ways to tokenize our document. 
 
 It is a long string, so the first way we might consider is to split it by spaces.
-
-
-```python
-print(f'{one_random_student(mccalister)} help me split the first document by spaces')
-
-```
 
 
 ```python
@@ -172,23 +258,19 @@ Excessive has the same semantic value, but will be treated as two separate token
 sentence_one =  "Excessive gerrymandering in small counties suppresses turnout." 
 sentence_two =  "Turnout is suppressed in small counties by excessive gerrymandering."
 
-excessive = sentence_one.split(' ')[0]
-Excessive = sentence_two.split(' ')[-2]
-print(excessive, Excessive)
-excessive == Excessive
 ```
 
 
 ```python
-print(f'''{one_random_student(mccalister)}, 
-      fill in the list comprehension below to manually
-      remove capitals from the 1st document''')
+sentence_one =  "Excessive gerrymandering in small counties suppresses turnout." 
+sentence_two =  "Turnout is suppressed in small counties by excessive gerrymandering."
 ```
+
+### Let's fill in the list comprehension below to manually and remove capitals from the 1st document
 
 
 ```python
-manual_cleanup = [ in first_document.split(' ')]
-
+manual_cleanup = None
 ```
 
 
@@ -196,15 +278,24 @@ manual_cleanup = [ in first_document.split(' ')]
 print(f"Our initial token set for our first document is {len(manual_cleanup)} words long")
 ```
 
+    Our initial token set for our first document is 154 words long
+
+
 
 ```python
 print(f"Our initial token set for our first document has {len(set(first_document.split()))} unique words")
 ```
 
+    Our initial token set for our first document has 117 unique words
+
+
 
 ```python
 print(f"After remove caps, our first document has {len(set(manual_cleanup))} unique words")
 ```
+
+    After remove caps, our first document has 115 unique words
+
 
 ## Punctuation
 
@@ -212,41 +303,231 @@ Like capitals, splitting on white space will create tokens which include punctua
 
 Returning to the above example, 'gerrymandering' and 'gerrymandering.' will be treated as different tokens.
 
-
-```python
-no_punct = sentence_one.split(' ')[1]
-punct = sentence_two.split(' ')[-1]
-print(no_punct, punct)
-no_punct == punct
-```
+# Different ways to strip punctuation
 
 
 ```python
+# Strip with translate
+
 ## Manual removal of punctuation
 # string library!
 import string
 
 string.punctuation
+punctuation = string.punctuation + '“'
+punctuation
 # string.ascii_letters
+
+
+```
+
+
+
+
+    '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~“'
+
+
+
+# Strip with regex
+
+To remove them, we will use regular expressions, a powerful tool which you may already have some familiarity with.
+
+Regex allows us to match strings based on a pattern.  This pattern comes from a language of identifiers, which we can begin exploring on the cheatsheet found here:
+  -   https://regexr.com/
+
+A few key symbols:
+  - . : matches any character
+  - \d, \w, \s : represent digit, word, whitespace  
+  - *, ?, +: matches 0 or more, 0 or 1, 1 or more of the preceding character  
+  - [A-Z]: matches any capital letter  
+  - [a-z]: matches lowercase letter  
+
+
+```python
+manual_cleanup
+```
+
+
+
+
+    ['noting',
+     'that',
+     'the',
+     'resignation',
+     'of',
+     'james',
+     'mattis',
+     'as',
+     'secretary',
+     'of',
+     'defense',
+     'marked',
+     'the',
+     'ouster',
+     'of',
+     'the',
+     'third',
+     'top',
+     'administration',
+     'official',
+     'in',
+     'less',
+     'than',
+     'three',
+     'weeks',
+     'a',
+     'worried',
+     'populace',
+     'told',
+     'reporters',
+     'friday',
+     'that',
+     'it',
+     'was',
+     'unsure',
+     'how',
+     'many',
+     'former',
+     'trump',
+     'staffers',
+     'it',
+     'could',
+     'safely',
+     'reabsorb',
+     '“jesus',
+     'we',
+     'can’t',
+     'just',
+     'take',
+     'back',
+     'these',
+     'assholes',
+     'all',
+     'at',
+     'once—we',
+     'need',
+     'time',
+     'to',
+     'process',
+     'one',
+     'before',
+     'we',
+     'get',
+     'the',
+     'next”',
+     'said',
+     '53yearold',
+     'gregory',
+     'birch',
+     'of',
+     'naperville',
+     'il',
+     'echoing',
+     'the',
+     'concerns',
+     'of',
+     '323',
+     'million',
+     'americans',
+     'in',
+     'also',
+     'noting',
+     'that',
+     'the',
+     'country',
+     'was',
+     'only',
+     'now',
+     'truly',
+     'beginning',
+     'to',
+     'reintegrate',
+     'former',
+     'national',
+     'security',
+     'advisor',
+     'michael',
+     'flynn',
+     '“this',
+     'is',
+     'just',
+     'not',
+     'sustainable',
+     'i’d',
+     'say',
+     'we',
+     'can',
+     'handle',
+     'maybe',
+     'one',
+     'or',
+     'two',
+     'more',
+     'former',
+     'members',
+     'of',
+     'trump’s',
+     'inner',
+     'circle',
+     'over',
+     'the',
+     'remainder',
+     'of',
+     'the',
+     'year',
+     'but',
+     'that’s',
+     'it',
+     'this',
+     'country',
+     'has',
+     'its',
+     'limits”',
+     'the',
+     'us',
+     'populace',
+     'confirmed',
+     'that',
+     'they',
+     'could',
+     'not',
+     'handle',
+     'all',
+     'of',
+     'these',
+     'pieces',
+     'of',
+     'shit',
+     'trying',
+     'to',
+     'rejoin',
+     'society',
+     'at',
+     'once']
+
+
+
+
+```python
+# Test out a word and search it
+
+
 ```
 
 
 ```python
-print(f'''{one_random_student(mccalister)}, 
-      fill in the nest list comprehension to remove characters
-      contained in the string.punctuation list''')
-```
+# Create a pattern that matches only letters to strip punctuation
 
-
-```python
-manual_cleanup = [''.join()() for s in manual_cleanup]
-
+# Code here
 ```
 
 
 ```python
 print(f"After removing punctuation, our first document has {len(set(manual_cleanup))} unique words")
 ```
+
+    After removing punctuation, our first document has 75 unique words
+
 
 ### Stopwords
 
@@ -257,20 +538,35 @@ Luckily, NLTK has lists of stopwords ready for our use.
 
 ```python
 from nltk.corpus import stopwords
-stopwords.__dict__
-```
-
-
-```python
 stopwords.words('english')[:10]
 ```
+
+
+
+
+    ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're"]
+
+
 
 
 ```python
 stopwords.words('spanish')[:10]
 ```
 
+
+
+
+    ['de', 'la', 'que', 'el', 'en', 'y', 'a', 'los', 'del', 'se']
+
+
+
 Let's see which stopwords are present in our first document.
+
+
+```python
+stops = [token for token in manual_cleanup if token in stopwords.words('english')]
+
+```
 
 
 ```python
@@ -279,14 +575,27 @@ stops[:10]
 ```
 
 
+
+
+    ['that', 'the', 'of', 'as', 'of', 'the', 'of', 'the', 'in', 'than']
+
+
+
+
 ```python
 print(f'There are {len(stops)} stopwords in the first document')
 ```
+
+    There are 68 stopwords in the first document
+
 
 
 ```python
 print(f'That is {len(stops)/len(manual_cleanup): .2%} of our text')
 ```
+
+    That is  44.44% of our text
+
 
 Let's also use the **FreqDist** tool to look at the makeup of our text before and after removal
 
@@ -305,6 +614,17 @@ fdist.plot(30)
 ```
 
 
+![png](index_files/index_67_0.png)
+
+
+
+
+
+    <matplotlib.axes._subplots.AxesSubplot at 0x1a70f33198>
+
+
+
+
 ```python
 manual_cleanup = [token for token in manual_cleanup if token not in stopwords.words('english')]
 ```
@@ -319,6 +639,22 @@ custom_sw[-10:]
 ```
 
 
+
+
+    ['wasn',
+     "wasn't",
+     'weren',
+     "weren't",
+     'won',
+     "won't",
+     'wouldn',
+     "wouldn't",
+     "i'd",
+     'say']
+
+
+
+
 ```python
 manual_cleanup = [token for token in manual_cleanup if token not in custom_sw]
 
@@ -329,6 +665,9 @@ manual_cleanup = [token for token in manual_cleanup if token not in custom_sw]
 print(f'After removing stopwords, there are {len(set(manual_cleanup))} unique words left')
 ```
 
+    After removing stopwords, there are 75 unique words left
+
+
 
 ```python
 fdist = FreqDist(manual_cleanup)
@@ -337,11 +676,36 @@ fdist.plot(30)
 ```
 
 
+![png](index_files/index_72_0.png)
+
+
+
+
+
+    <matplotlib.axes._subplots.AxesSubplot at 0x1a70f30860>
+
+
+
+
 ```python
 print(f'''{one_random_student(mccalister)}, based on the frequency plot above, 
     add some custome stopwords to our list, and remove them from our document. 
     Print out the frequency plot to confirm they have been removed.''')
 ```
+
+
+    ---------------------------------------------------------------------------
+
+    NameError                                 Traceback (most recent call last)
+
+    <ipython-input-378-fa0ea6476d87> in <module>
+          1 print(f'''{one_random_student(mccalister)}, based on the frequency plot above, 
+          2     add some custome stopwords to our list, and remove them from our document.
+    ----> 3     Print out the frequency plot to confirm they have been removed.''')
+    
+
+    NameError: name 'mccalister' is not defined
+
 
 
 ```python
