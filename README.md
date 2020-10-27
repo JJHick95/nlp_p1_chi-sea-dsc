@@ -13,9 +13,10 @@
 
 
 ## 1. Overview of NLP
-NLP allows computers to interact with text data in a structured and sensible way. In short, we will be breaking up series of texts into individual words (or groups of words), and isolating the words with **semantic value**.  We will then compare texts with similar distributions of these words, and group them together.
+NLP allows computers to interact with text data in a structured and sensible way.  We will be breaking up series of texts into individual words (or groups of words), and isolating the words with **semantic value**.  We will then compare texts with similar distributions of these words, and group them together.
 
-In this section, we will discuss some steps and approaches to common text data analytic procedures. In other words, with NLP, computers are taught to understand human language, its meaning and sentiments. Some of the applications of natural language processing are:
+In this section, we will discuss some steps and approaches to common data analytic procedures for text to learn how computers can understand human language, its meaning and sentiments. Some of the applications of natural language processing are:
+
 - Chatbots 
 - Speech recognition and audio processing 
 - Classifying documents 
@@ -33,7 +34,9 @@ We will also introduce you to [**NLTK**](https://www.nltk.org/) (Natural Languag
 
 # 2. Model Building Principles Remain Consistent
 
-We will be working with a dataset which includes both **satirical** (The Onion) and real news (Reuters) articles. 
+You have now been introduced to a suite of concepts concerning how to transform data of different raw forms into forms that computers can learn from. We have learned how to scale, one hot encode, bin, and resample continuous and categorical independent features for regression and classification tasks.  We have learned how to arrange autocorrelated series chronologically to predict with past value.  And now we will learn to break up text into numerical dataframes that reflect semantic value.
+
+We will be working with a dataset which includes both **satirical** (The Onion) and serious news (Reuters) articles. 
 
 ### Vocab
 > We refer to the entire set of articles as the **corpus**.  
@@ -61,42 +64,10 @@ corpus.shape
 ```
 
 
-
-
-    (1000, 2)
-
-
-
-
 ```python
 # It is a balanced dataset with 500 documents of each category. 
 corpus.target.value_counts()
 ```
-
-
-
-
-    1    500
-    0    500
-    Name: target, dtype: int64
-
-
-
-
-```python
-# Let's look at some example texts from both categories
-corpus[corpus.target==1].sample().body.values
-
-corpus[corpus.target==0].sample().body.values
-```
-
-
-
-
-    array([' Gabon foiled an attempted military coup on Monday, killing two suspected plotters and capturing seven others just hours after they took over state radio in a bid to end 50 years of rule by President Ali Bongo’s family. Government spokesman Guy-Bertrand Mapangou announced the deaths and arrests after soldiers briefly seized the radio station and broadcast a message saying Bongo was no longer fit for office after suffering a stroke in Saudi Arabia in October. The quick failure of Monday’s coup and the lack of widespread support suggest further efforts to overthrow Bongo are unlikely, analysts said. But the attempt alone shows a growing frustration with a government weakened by the President’s secretive medical leave. On Dec. 31, in one of his first television appearances since the stroke, Bongo, 59, slurred his speech and he appeared unable to move his right arm. It is unclear if he is able to walk. He has been in Morocco since November to continue treatment. In a radio message at 4:30 a.m. (0330 GMT), Lieutenant Kelly Ondo Obiang, who described himself as an officer in the Republican Guard, said Bongo’s New Year’s Eve address “reinforced doubts about the president’s ability to continue to carry out of the responsibilities of his office”. Outside the radio station, loyalist soldiers fired teargas to disperse about 300 people who had come out into the streets to support the coup attempt, a Reuters witness said. Helicopters circled overhead and there was a strong military and police presence on the streets. Most of the beachside capital was quiet, however, and a government spokesman said the situation was under control after the arrests. Residents said Internet access was cut. “The government is in place. The institutions are in place,” Mapangou told France 24. The Bongo family has ruled the oil-producing country since 1967. Bongo has been president since succeeding his father, Omar, who died in 2009. His re-election in 2016 was marred by claims of fraud and violent protest. The economy was long buoyed by oil revenues, much of which went to a moneyed elite while most of the two-million population live in deep poverty. In Libreville, expensive western hotels overlook the Atlantic Ocean to the west and the capital’s hillside shanties to the east. A sharp drop in oil output and prices in recent years has squeezed revenues, raised debt and stoked discontent. Oil workers’ strikes have become more common. Economic growth was 2 percent last year, down from over 7 percent in 2011. The coup indicates “broad socio-economic and political frustration with Gabon’s leadership, which has been weakened by the suspected incapacitation of its strongman president,” Exx Africa Business Risk Intelligence said in a report. The international community condemned the coup attempt, including former colonial ruler France which urged its 8,900 citizens registered in Gabon to avoid moving around Libreville. “Gabon’s stability can only be ensured in strict compliance with the provisions of its constitution,” French foreign ministry spokeswoman Agnes von der Muhll said. African Union Commission Chairman Moussa Faki Mahamat reaffirmed “the AU’s total rejection of all unconstitutional changes of power.” In a video on social media, Ondo is seen in a radio studio wearing military fatigues and a green beret as he reads the statement. Two other soldiers with rifles stand behind him. Ondo said the coup attempt was by a group called the Patriotic Movement of the Defence and Security Forces of Gabon against “those who, in a cowardly way, assassinated our young compatriots on the night of August 31, 2016,” a reference to violence after Bongo was declared winner of a disputed election. Bongo won the poll by fewer than 6,000 votes, sparking deadly clashes between protesters and police during which the parliament was torched. “President Bongo’s record as defence minister under his father lowers the possibility that current military leadership is supportive of his ouster,” said Judd Devermont of the Center for Strategic and International Studies in Washington. France has a permanent force of 300 soldiers in Gabon. The United States also sent about 80 soldiers to Gabon last week in response to possible violence in Democratic Republic of Congo after a presidential election there. Foreign governments have often suspected Bongo and members of his government of corruption, accusations they have denied. During his father’s rule, Gabon was a pillar of “La Francafrique”, a web of influence that gave French companies favoured access to African autocrats. Gabon’s dollar-denominated sovereign debt <XS1003557870=TE > <US362420AC51=TE > tumbled in early trading, with both outstanding bonds losing around 3 cents in the dollar. However, prices recovered in late morning, with bonds trading around half a cent lower. Additional reporting by David Lewis, Maggie Fick, Ange Aboa and Karin Strohecker; Writing by Aaron Ross and Edward McAllister; Editing by Simon Cameron-Moore, Raissa Kasolowsky, William Maclean MORE FROM REUTERS SPONSORED SPONSORED All quotes delayed a minimum of 15 minutes. See here for a complete list of exchanges and delays. © 2019 Reuters. All Rights Reserved.'],
-          dtype=object)
-
-
 
 Let's think about our types of error and the use cases of being able to correctly separate satirical from authentic news. What type of error should we decide to optimize our models for?  
 
@@ -125,178 +96,6 @@ X_t_vec = pd.DataFrame(X_t_vec.toarray(), columns = tfidf.get_feature_names())
 X_t_vec.head()
 ```
 
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>aaaaaaah</th>
-      <th>aaaaaah</th>
-      <th>aaaaargh</th>
-      <th>aaargh</th>
-      <th>aah</th>
-      <th>aahing</th>
-      <th>aap</th>
-      <th>aapl</th>
-      <th>aaron</th>
-      <th>ab</th>
-      <th>...</th>
-      <th>zooming</th>
-      <th>zoos</th>
-      <th>zor</th>
-      <th>zozovitch</th>
-      <th>zte</th>
-      <th>zuckerberg</th>
-      <th>zuercher</th>
-      <th>zverev</th>
-      <th>zych</th>
-      <th>zzouss</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-<p>5 rows × 18970 columns</p>
-</div>
-
-
-
 ### We can push this data into any of our classification models
 
 
@@ -309,13 +108,6 @@ log_r.fit(X_t_vec, y_t)
 # Perfect on the training set. 
 log_r.score(X_t_vec, y_t)
 ```
-
-
-
-
-    0.996875
-
-
 
 # We proceed as usual:
     - Transform the validation set
@@ -338,20 +130,6 @@ from sklearn.metrics import plot_confusion_matrix
 plot_confusion_matrix(log_r, X_val_vec, y_val)
 ```
 
-    0.9875
-
-
-
-
-
-    <sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay at 0x117a034a8>
-
-
-
-
-![png](index_files/index_20_2.png)
-
-
 #### How did your model do?  
 
 Probably well.  
@@ -370,46 +148,10 @@ pipeline
 ```
 
 
-
-
-    Pipeline(memory=None,
-             steps=[('tfidfvectorizer',
-                     TfidfVectorizer(analyzer='word', binary=False,
-                                     decode_error='strict',
-                                     dtype=<class 'numpy.float64'>,
-                                     encoding='utf-8', input='content',
-                                     lowercase=True, max_df=1.0, max_features=None,
-                                     min_df=1, ngram_range=(1, 1), norm='l2',
-                                     preprocessor=None, smooth_idf=True,
-                                     stop_words=None, strip_accents=None,
-                                     sublinear_tf=False,
-                                     token...ern="([a-zA-Z]+(?:'[a-z]+)?)",
-                                     tokenizer=None, use_idf=True,
-                                     vocabulary=None)),
-                    ('logisticregression',
-                     LogisticRegression(C=1.0, class_weight=None, dual=False,
-                                        fit_intercept=True, intercept_scaling=1,
-                                        l1_ratio=None, max_iter=100,
-                                        multi_class='auto', n_jobs=None,
-                                        penalty='l2', random_state=None,
-                                        solver='lbfgs', tol=0.0001, verbose=0,
-                                        warm_start=False))],
-             verbose=False)
-
-
-
-
 ```python
 cross_val_score(pipeline, X_train, y_train).mean()
 
 ```
-
-
-
-
-    0.9737499999999999
-
-
 
 
 ```python
@@ -417,35 +159,6 @@ cross_val_score(pipeline, X_train, y_train).mean()
 pipeline.fit(X_train, y_train)
 
 ```
-
-
-
-
-    Pipeline(memory=None,
-             steps=[('tfidfvectorizer',
-                     TfidfVectorizer(analyzer='word', binary=False,
-                                     decode_error='strict',
-                                     dtype=<class 'numpy.float64'>,
-                                     encoding='utf-8', input='content',
-                                     lowercase=True, max_df=1.0, max_features=None,
-                                     min_df=1, ngram_range=(1, 1), norm='l2',
-                                     preprocessor=None, smooth_idf=True,
-                                     stop_words=None, strip_accents=None,
-                                     sublinear_tf=False,
-                                     token...ern="([a-zA-Z]+(?:'[a-z]+)?)",
-                                     tokenizer=None, use_idf=True,
-                                     vocabulary=None)),
-                    ('logisticregression',
-                     LogisticRegression(C=1.0, class_weight=None, dual=False,
-                                        fit_intercept=True, intercept_scaling=1,
-                                        l1_ratio=None, max_iter=100,
-                                        multi_class='auto', n_jobs=None,
-                                        penalty='l2', random_state=None,
-                                        solver='lbfgs', tol=0.0001, verbose=0,
-                                        warm_start=False))],
-             verbose=False)
-
-
 
 
 ```python
@@ -461,17 +174,6 @@ from sklearn.metrics import plot_confusion_matrix
 
 plot_confusion_matrix(pipeline, X_test, y_test)
 ```
-
-
-
-
-    <sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay at 0x117c6a710>
-
-
-
-
-![png](index_files/index_26_1.png)
-
 
 # 3 Preprocessing
 
@@ -501,42 +203,6 @@ It is a long string, so the first way we might consider is to split it by spaces
 ```python
 first_document.split()[:30]
 ```
-
-
-
-
-    ['Noting',
-     'that',
-     'the',
-     'resignation',
-     'of',
-     'James',
-     'Mattis',
-     'as',
-     'Secretary',
-     'of',
-     'Defense',
-     'marked',
-     'the',
-     'ouster',
-     'of',
-     'the',
-     'third',
-     'top',
-     'administration',
-     'official',
-     'in',
-     'less',
-     'than',
-     'three',
-     'weeks,',
-     'a',
-     'worried',
-     'populace',
-     'told',
-     'reporters']
-
-
 
 We are attempting to create a list of tokens whose semantic value reflects the class the document is associated with.  What issues might you see with the list of tokens generated by a simple split as performed above?
 
@@ -574,38 +240,7 @@ manual_cleanup = [token.lower() for token in first_document.split(' ')]
 manual_cleanup[:25]
 ```
 
-
-
-
-    ['noting',
-     'that',
-     'the',
-     'resignation',
-     'of',
-     'james',
-     'mattis',
-     'as',
-     'secretary',
-     'of',
-     'defense',
-     'marked',
-     'the',
-     'ouster',
-     'of',
-     'the',
-     'third',
-     'top',
-     'administration',
-     'official',
-     'in',
-     'less',
-     'than',
-     'three',
-     'weeks,']
-
-
-
-By removing capitals, we decrease the total unique word count in our first document by 2.  That may not seem like much, but across an entire corpus, it will make a big difference.
+By removing capitals, we decrease the total unique word count in our first document by 2.  
 
 ## Punctuation
 
@@ -636,6 +271,7 @@ https://www.regular-expressions.info/tutorial.html
 
 
 ```python
+# a raw string will not process escapes
 pattern = r"[a-zA-Z]+"
 
 target_word = manual_cleanup[10]
@@ -643,13 +279,6 @@ re.search(pattern, target_word).group(0)
 
 
 ```
-
-
-
-
-    'defense'
-
-
 
 
 ```python
@@ -665,165 +294,6 @@ import re
 pattern = "([a-zA-Z]+(?:'[a-z]+)?)"
 [re.match(pattern, word).group(0) for word in manual_cleanup]
 ```
-
-
-
-
-    ['noting',
-     'that',
-     'the',
-     'resignation',
-     'of',
-     'james',
-     'mattis',
-     'as',
-     'secretary',
-     'of',
-     'defense',
-     'marked',
-     'the',
-     'ouster',
-     'of',
-     'the',
-     'third',
-     'top',
-     'administration',
-     'official',
-     'in',
-     'less',
-     'than',
-     'three',
-     'weeks',
-     'a',
-     'worried',
-     'populace',
-     'told',
-     'reporters',
-     'friday',
-     'that',
-     'it',
-     'was',
-     'unsure',
-     'how',
-     'many',
-     'former',
-     'trump',
-     'staffers',
-     'it',
-     'could',
-     'safely',
-     'reabsorb',
-     'jesus',
-     'we',
-     'can',
-     'just',
-     'take',
-     'back',
-     'these',
-     'assholes',
-     'all',
-     'at',
-     'once',
-     'need',
-     'time',
-     'to',
-     'process',
-     'one',
-     'before',
-     'we',
-     'get',
-     'the',
-     'next',
-     'said',
-     'year',
-     'gregory',
-     'birch',
-     'of',
-     'naperville',
-     'il',
-     'echoing',
-     'the',
-     'concerns',
-     'of',
-     'million',
-     'americans',
-     'in',
-     'also',
-     'noting',
-     'that',
-     'the',
-     'country',
-     'was',
-     'only',
-     'now',
-     'truly',
-     'beginning',
-     'to',
-     'reintegrate',
-     'former',
-     'national',
-     'security',
-     'advisor',
-     'michael',
-     'flynn',
-     'this',
-     'is',
-     'just',
-     'not',
-     'sustainable',
-     'i',
-     'say',
-     'we',
-     'can',
-     'handle',
-     'maybe',
-     'one',
-     'or',
-     'two',
-     'more',
-     'former',
-     'members',
-     'of',
-     'trump',
-     'inner',
-     'circle',
-     'over',
-     'the',
-     'remainder',
-     'of',
-     'the',
-     'year',
-     'but',
-     'that',
-     'it',
-     'this',
-     'country',
-     'has',
-     'its',
-     'limits',
-     'the',
-     'u',
-     'populace',
-     'confirmed',
-     'that',
-     'they',
-     'could',
-     'not',
-     'handle',
-     'all',
-     'of',
-     'these',
-     'pieces',
-     'of',
-     'shit',
-     'trying',
-     'to',
-     'rejoin',
-     'society',
-     'at',
-     'once']
-
-
 
 ### Stopwords
 
@@ -846,17 +316,6 @@ fdist.plot(30)
 ```
 
 
-![png](index_files/index_58_0.png)
-
-
-
-
-
-    <matplotlib.axes._subplots.AxesSubplot at 0x121250390>
-
-
-
-
 ```python
 # We can also customize our stopwords list
 
@@ -864,22 +323,6 @@ custom_sw = stopwords.words('english')
 custom_sw.extend(["i'd","say"] )
 custom_sw[-10:]
 ```
-
-
-
-
-    ['wasn',
-     "wasn't",
-     'weren',
-     "weren't",
-     'won',
-     "won't",
-     'wouldn',
-     "wouldn't",
-     "i'd",
-     'say']
-
-
 
 
 ```python
@@ -890,17 +333,6 @@ fdist = FreqDist(manual_cleanup)
 plt.figure(figsize=(10,10))
 fdist.plot(30)
 ```
-
-
-![png](index_files/index_60_0.png)
-
-
-
-
-
-    <matplotlib.axes._subplots.AxesSubplot at 0x1222d6470>
-
-
 
 #### Numbers
 
@@ -924,13 +356,6 @@ test_string = "Reno 911"
 
 re.search(no_num_pattern, test_string).group()
 ```
-
-
-
-
-    'Reno'
-
-
 
 # Pair Exercise:  
 Sklearn and NLTK provide us with a suite of **tokenizers** for our text preprocessing convenience.
@@ -960,26 +385,6 @@ sample_doc = [token.lower() for token in sample_doc]
 sample_doc = [token for token in sample_doc if token not in custom_sw]
 ```
 
-
-    ---------------------------------------------------------------------------
-
-    NameError                                 Traceback (most recent call last)
-
-    <ipython-input-61-6e02bc632e8d> in <module>
-          9 
-         10 sample_doc = [token.lower() for token in sample_doc]
-    ---> 11 sample_doc = [token for token in sample_doc if token not in custom_sw]
-    
-
-    <ipython-input-61-6e02bc632e8d> in <listcomp>(.0)
-          9 
-         10 sample_doc = [token.lower() for token in sample_doc]
-    ---> 11 sample_doc = [token for token in sample_doc if token not in custom_sw]
-    
-
-    NameError: name 'custom_sw' is not defined
-
-
 # Stemming
 
 Most of the semantic meaning of a word is held in the root, which is usually the beginning of a word.  Conjugations and plurality do not change the semantic meaning. "eat", "eats", and "eating" all have essentially the same meaning packed into eat.   
@@ -1001,13 +406,6 @@ s_stemmer = SnowballStemmer(language="english")
 p_stemmer.stem(sample_doc[0])
 s_stemmer.stem(sample_doc[1])
 ```
-
-
-
-
-    'confirm'
-
-
 
 
 ```python
@@ -1038,9 +436,6 @@ lemmatizer = WordNetLemmatizer()
 print(f'Mice becomes: {lemmatizer.lemmatize("mice")}')
 ```
 
-    Mice becomes: mouse
-
-
 Lemmatizers depend on POS tagging, and defaults to noun.
 
 With a little bit of work, we can POS tag our text.
@@ -1052,307 +447,19 @@ new_sample_tagged
 ```
 
 
-
-
-    [('Sudanese', 'JJ'),
-     ('authorities', 'NNS'),
-     ('blocking', 'VBG'),
-     ('access', 'NN'),
-     ('popular', 'JJ'),
-     ('social', 'JJ'),
-     ('media', 'NNS'),
-     ('platforms', 'NNS'),
-     ('used', 'VBD'),
-     ('organise', 'RB'),
-     ('broadcast', 'JJ'),
-     ('nationwide', 'JJ'),
-     ('anti', 'JJ'),
-     ('government', 'NN'),
-     ('protests', 'NNS'),
-     ('triggered', 'VBD'),
-     ('economic', 'JJ'),
-     ('crisis', 'NN'),
-     ('internet', 'NN'),
-     ('users', 'NNS'),
-     ('Sudan', 'NNP'),
-     ('rocked', 'VBD'),
-     ('near', 'IN'),
-     ('daily', 'JJ'),
-     ('demonstrations', 'NNS'),
-     ('past', 'IN'),
-     ('two', 'CD'),
-     ('weeks', 'NNS'),
-     ('Protesters', 'NNPS'),
-     ('set', 'VBD'),
-     ('alight', 'RP'),
-     ('ruling', 'VBG'),
-     ('party', 'NN'),
-     ('buildings', 'NNS'),
-     ('called', 'VBN'),
-     ('President', 'NNP'),
-     ('Omar', 'NNP'),
-     ('al', 'NN'),
-     ('Bashir', 'NNP'),
-     ('took', 'VBD'),
-     ('power', 'NN'),
-     ('step', 'NN'),
-     ('In', 'IN'),
-     ('country', 'NN'),
-     ('state', 'NN'),
-     ('tightly', 'RB'),
-     ('controls', 'VBZ'),
-     ('traditional', 'JJ'),
-     ('media', 'NNS'),
-     ('internet', 'NN'),
-     ('become', 'VBP'),
-     ('key', 'JJ'),
-     ('information', 'NN'),
-     ('battleground', 'NN'),
-     ('Of', 'IN'),
-     ('Sudan’s', 'NNP'),
-     ('million', 'CD'),
-     ('people', 'NNS'),
-     ('million', 'CD'),
-     ('use', 'JJ'),
-     ('internet', 'NN'),
-     ('million', 'CD'),
-     ('mobile', 'JJ'),
-     ('phones', 'NNS'),
-     ('local', 'JJ'),
-     ('media', 'NNS'),
-     ('Authorities', 'NNP'),
-     ('repeated', 'VBD'),
-     ('internet', 'NN'),
-     ('blackout', 'NN'),
-     ('imposed', 'VBN'),
-     ('deadly', 'JJ'),
-     ('protests', 'NNS'),
-     ('But', 'CC'),
-     ('head', 'VBP'),
-     ('Sudan’s', 'NNP'),
-     ('National', 'NNP'),
-     ('Intelligence', 'NNP'),
-     ('Security', 'NNP'),
-     ('Service', 'NNP'),
-     ('Salah', 'NNP'),
-     ('Abdallah', 'NNP'),
-     ('told', 'VBD'),
-     ('rare', 'JJ'),
-     ('news', 'NN'),
-     ('conference', 'NN'),
-     ('Dec', 'NNP'),
-     ('There', 'EX'),
-     ('discussion', 'JJ'),
-     ('government', 'NN'),
-     ('blocking', 'VBG'),
-     ('social', 'JJ'),
-     ('media', 'NNS'),
-     ('sites', 'NNS'),
-     ('end', 'VBP'),
-     ('decided', 'VBD'),
-     ('block', 'NN'),
-     ('Users', 'NNS'),
-     ('three', 'CD'),
-     ('main', 'JJ'),
-     ('telecommunications', 'NN'),
-     ('operators', 'NNS'),
-     ('country', 'NN'),
-     ('Zain', 'NNP'),
-     ('MTN', 'NNP'),
-     ('Sudani', 'NNP'),
-     ('said', 'VBD'),
-     ('access', 'NN'),
-     ('Facebook', 'NNP'),
-     ('Twitter', 'NNP'),
-     ('WhatsApp', 'NNP'),
-     ('possible', 'JJ'),
-     ('use', 'NN'),
-     ('virtual', 'JJ'),
-     ('private', 'JJ'),
-     ('network', 'NN'),
-     ('VPN', 'NNP'),
-     ('Though', 'NNP'),
-     ('VPNs', 'NNP'),
-     ('bring', 'VBG'),
-     ('connection', 'NN'),
-     ('problems', 'NNS'),
-     ('Sudanese', 'JJ'),
-     ('unaware', 'JJ'),
-     ('existence', 'NN'),
-     ('activists', 'NNS'),
-     ('used', 'VBD'),
-     ('widely', 'RB'),
-     ('organise', 'JJ'),
-     ('document', 'NN'),
-     ('demonstrations', 'NNS'),
-     ('Hashtags', 'NNP'),
-     ('Arabic', 'NNP'),
-     ('Sudan’s', 'NNP'),
-     ('cities', 'NNS'),
-     ('revolt', 'VBP'),
-     ('widely', 'RB'),
-     ('circulated', 'VBN'),
-     ('Sudan', 'NNP'),
-     ('abroad', 'RB'),
-     ('Hashtags', 'NNP'),
-     ('English', 'NNP'),
-     ('SudanRevolts', 'NNP'),
-     ('also', 'RB'),
-     ('used', 'VBD'),
-     ('Social', 'NNP'),
-     ('media', 'NNS'),
-     ('really', 'RB'),
-     ('big', 'JJ'),
-     ('impact', 'NN'),
-     ('helps', 'VBZ'),
-     ('forming', 'VBG'),
-     ('public', 'JJ'),
-     ('opinion', 'NN'),
-     ('transmitting', 'VBG'),
-     ('what’s', 'JJ'),
-     ('happening', 'VBG'),
-     ('Sudan', 'NNP'),
-     ('outside', 'NN'),
-     ('said', 'VBD'),
-     ('Mujtaba', 'NNP'),
-     ('Musa', 'NNP'),
-     ('Sudanese', 'NNP'),
-     ('Twitter', 'NNP'),
-     ('user', 'NN'),
-     ('followers', 'NNS'),
-     ('active', 'JJ'),
-     ('documenting', 'VBG'),
-     ('protests', 'NNS'),
-     ('NetBlocks', 'NNP'),
-     ('digital', 'JJ'),
-     ('rights', 'NNS'),
-     ('NGO', 'NNP'),
-     ('said', 'VBD'),
-     ('data', 'NNS'),
-     ('collected', 'VBD'),
-     ('including', 'VBG'),
-     ('thousands', 'NNS'),
-     ('Sudanese', 'JJ'),
-     ('volunteers', 'NNS'),
-     ('provided', 'VBD'),
-     ('evidence', 'NN'),
-     ('extensive', 'JJ'),
-     ('internet', 'NN'),
-     ('censorship', 'NN'),
-     ('regime', 'NN'),
-     ('Bader', 'NNP'),
-     ('al', 'NN'),
-     ('Kharafi', 'NNP'),
-     ('CEO', 'NNP'),
-     ('parent', 'NN'),
-     ('company', 'NN'),
-     ('Zain', 'NNP'),
-     ('Group', 'NNP'),
-     ('told', 'VBD'),
-     ('Reuters', 'NNP'),
-     ('Some', 'DT'),
-     ('websites', 'NNS'),
-     ('may', 'MD'),
-     ('blocked', 'VB'),
-     ('technical', 'JJ'),
-     ('reasons', 'NNS'),
-     ('beyond', 'IN'),
-     ('company’s', 'JJ'),
-     ('specialisation', 'NN'),
-     ('Neither', 'NNP'),
-     ('National', 'NNP'),
-     ('Telecommunications', 'NNP'),
-     ('Corporation', 'NNP'),
-     ('oversees', 'VBZ'),
-     ('sector', 'NN'),
-     ('Sudan', 'NNP'),
-     ('MTN', 'NNP'),
-     ('Sudani', 'NNP'),
-     ('reached', 'VBD'),
-     ('comment', 'NN'),
-     ('Twitter', 'NNP'),
-     ('Facebook', 'NNP'),
-     ('also', 'RB'),
-     ('owns', 'VBZ'),
-     ('WhatsApp', 'NNP'),
-     ('declined', 'VBD'),
-     ('comment', 'NN'),
-     ('While', 'IN'),
-     ('Sudan', 'NNP'),
-     ('long', 'JJ'),
-     ('history', 'NN'),
-     ('systematically', 'RB'),
-     ('censoring', 'VBG'),
-     ('print', 'NN'),
-     ('broadcast', 'NN'),
-     ('media', 'NNS'),
-     ('online', 'JJ'),
-     ('media', 'NNS'),
-     ('relatively', 'RB'),
-     ('untouched', 'JJ'),
-     ('despite', 'IN'),
-     ('exponential', 'JJ'),
-     ('growth', 'NN'),
-     ('recent', 'JJ'),
-     ('years', 'NNS'),
-     ('said', 'VBD'),
-     ('Mai', 'NNP'),
-     ('Truong', 'NNP'),
-     ('U', 'NNP'),
-     ('S', 'NNP'),
-     ('based', 'VBN'),
-     ('advocacy', 'NN'),
-     ('group', 'NN'),
-     ('Freedom', 'NNP'),
-     ('House', 'NNP'),
-     ('The', 'DT'),
-     ('authorities', 'NNS'),
-     ('started', 'VBD'),
-     ('follow', 'JJ'),
-     ('playbook', 'NN'),
-     ('authoritarian', 'JJ'),
-     ('governments', 'NNS'),
-     ('Additional', 'JJ'),
-     ('reporting', 'NN'),
-     ('Ahmed', 'NNP'),
-     ('Hagagy', 'NNP'),
-     ('Kuwait', 'NNP'),
-     ('Editing', 'NNP'),
-     ('Aidan', 'NNP'),
-     ('Lewis', 'NNP'),
-     ('Gareth', 'NNP'),
-     ('Jones', 'NNP'),
-     ('All', 'NNP'),
-     ('quotes', 'VBZ'),
-     ('delayed', 'VBN'),
-     ('minimum', 'JJ'),
-     ('minutes', 'NNS'),
-     ('See', 'VBP'),
-     ('complete', 'JJ'),
-     ('list', 'NN'),
-     ('exchanges', 'NNS'),
-     ('delays', 'VBP'),
-     ('Reuters', 'NNP'),
-     ('All', 'NNP'),
-     ('Rights', 'NNP'),
-     ('Reserved', 'VBD')]
-
-
-
-
 ```python
 new_sample_lemmed = [lemmatizer.lemmatize(token[0], token[1]) for token in new_sample_tagged]
 ```
 
 ## 4. Feature Engineering for NLP 
-The machine learning algorithms we have encountered so far represent features as the variables that take on different value for each observation. For example, we represent individual with distinct education level, income, and such. However, in NLP, features are represented in very different way. In order to pass text data to machine learning algorithm and perform classification, we need to represent the features in a sensible way. One such method is called **Bag-of-words (BoW)**. 
+In order to pass text data to machine learning algorithm and perform classification, we need to represent the features in a sensible way. One such method is called **Bag-of-words (BoW)**. 
 
-A bag-of-words model, or BoW for short, is a way of extracting features from text for use in modeling. A bag-of-words is a representation of text that describes the occurrence of words within a document. It involves two things:
+A bag-of-words model, or BoW for short, is a way of extracting **features** from text for use in modeling. A bag-of-words is a representation of text that describes the occurrence of words within a document. It involves two things:
 
 - A vocabulary of known words.
 - A measure of the presence of known words.
 
-It is called a “bag” of words, because any information about the order or structure of words in the document is discarded. The model is only concerned with whether known words occur in the document, not where in the document. The intuition behind BoW is that a document is similar to another if they have similar contents. Bag of Words method can be represented as **Document Term Matrix**, or Term Document Matrix, in which each column is an unique vocabulary, each observation is a document. For example:
+It is called a “bag” of words, because any information about the order or structure of words in the document is discarded. The model is only concerned with whether words occur in the document, **not where** in the document. The intuition behind BoW is that a document is similar to another if they have similar contents. Bag of Words method can be represented as **Document Term Matrix**, or Term Document Matrix, in which each column is an unique vocabulary, each observation is a document. For example:
 
 - Document 1: "I love dogs"
 - Document 2: "I love cats"
@@ -1382,111 +489,11 @@ We can pass in arguments such as a regex pattern, a list of stopwords, and an ng
 
 ```python
 vec = CountVectorizer(token_pattern=r"([a-zA-Z]+(?:'[a-z]+)?)", stop_words=custom_sw, ngram_range=[1,2])
-X = vec.fit_transform(corpus.body[0:2])
+X = vec.fit_transform(X_t)
 
 df = pd.DataFrame(X.toarray(), columns = vec.get_feature_names())
 df.head()
 ```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>adding</th>
-      <th>adding wants</th>
-      <th>administration</th>
-      <th>administration official</th>
-      <th>advisor</th>
-      <th>advisor michael</th>
-      <th>also</th>
-      <th>also noting</th>
-      <th>americans</th>
-      <th>americans also</th>
-      <th>...</th>
-      <th>witnesses want</th>
-      <th>work</th>
-      <th>work investigating</th>
-      <th>worried</th>
-      <th>worried populace</th>
-      <th>year</th>
-      <th>year country</th>
-      <th>year old</th>
-      <th>yet</th>
-      <th>yet another</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>...</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>2</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>...</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-  </tbody>
-</table>
-<p>2 rows × 371 columns</p>
-</div>
-
-
 
 Our document term matrix gets bigger and bigger, with more and more zeros, becoming sparser and sparser.
 
@@ -1517,178 +524,6 @@ X = tf_vec.fit_transform(corpus.body)
 df = pd.DataFrame(X.toarray(), columns = tf_vec.get_feature_names())
 df.head()
 ```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>aa</th>
-      <th>aaaaaaah</th>
-      <th>aaaaaah</th>
-      <th>aaaaargh</th>
-      <th>aaaah</th>
-      <th>aaah</th>
-      <th>aaargh</th>
-      <th>aah</th>
-      <th>aahing</th>
-      <th>aap</th>
-      <th>...</th>
-      <th>zoos</th>
-      <th>zor</th>
-      <th>zozovitch</th>
-      <th>zte</th>
-      <th>zuckerberg</th>
-      <th>zuercher</th>
-      <th>zverev</th>
-      <th>zych</th>
-      <th>zzouss</th>
-      <th>zzzzzst</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>...</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-<p>5 rows × 23455 columns</p>
-</div>
-
-
 
 Let's compare the tfidf to the count vectorizer output for one document.
 
@@ -1735,187 +570,15 @@ def doc_preparer(doc, stop_words=custom_sw):
 
 
 ```python
-docs = [doc_preparer(doc) for doc in corpus.body]
+docs = [doc_preparer(doc) for doc in X_train]
 ```
 
 
 ```python
-tf_idf = TfidfVectorizer(min_df = .05)
+tf_idf = TfidfVectorizer(min_df = 3)
 X = tf_idf.fit_transform(docs)
 
 df = pd.DataFrame(X.toarray())
 df.columns = tf_idf.vocabulary_
 df.head()
 ```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>secretary</th>
-      <th>mark</th>
-      <th>third</th>
-      <th>top</th>
-      <th>administration</th>
-      <th>official</th>
-      <th>less</th>
-      <th>three</th>
-      <th>week</th>
-      <th>tell</th>
-      <th>...</th>
-      <th>reserve</th>
-      <th>economy</th>
-      <th>october</th>
-      <th>militant</th>
-      <th>reporting</th>
-      <th>seven</th>
-      <th>syria</th>
-      <th>dec</th>
-      <th>minimum</th>
-      <th>lawmaker</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0.0</td>
-      <td>0.00000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>...</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.162442</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>0.0</td>
-      <td>0.00000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>...</td>
-      <td>0.078375</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.106884</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>0.0</td>
-      <td>0.00000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>...</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0.0</td>
-      <td>0.13159</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.208572</td>
-      <td>0.000000</td>
-      <td>...</td>
-      <td>0.077942</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.061257</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.128578</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>0.0</td>
-      <td>0.00000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.149827</td>
-      <td>...</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-      <td>0.000000</td>
-      <td>0.000000</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-<p>5 rows × 658 columns</p>
-</div>
-
-
